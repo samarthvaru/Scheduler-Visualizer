@@ -31,6 +31,7 @@
         </div>
         <button type="button" id="add-process">Add Process</button>
         <button type="submit" id="run-simulation">Run Simulation</button>
+        <p id="loading-message" style="display: none;">Please wait while the processes complete...</p>
     </form>
     <!-- Container for the Chart -->
     <canvas id="process-chart"></canvas>
@@ -63,6 +64,11 @@
                 var algorithm = $('#algorithm').val();
                 var quantum = $('#quantum').val();  // For Round Robin only
 
+                // Disable form elements and show loading message
+                $('#scheduling-form :input').prop('disabled', true);
+                $('#run-simulation').text('Running Simulation...');
+                $('#loading-message').show();
+
                 $.ajax({
                     type: 'POST',
                     url: '/schedule',
@@ -73,6 +79,12 @@
                     },
                     error: function(xhr, status, error) {
                         console.error(error);
+                    },
+                    complete: function() {
+                        // Re-enable form elements and hide loading message after completion
+                        $('#scheduling-form :input').prop('disabled', false);
+                        $('#run-simulation').text('Run Simulation');
+                        $('#loading-message').hide();
                     }
                 });
             });
