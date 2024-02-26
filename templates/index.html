@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Scheduling Simulator</title>
+</head>
+<body>
+    <h1>Process Scheduling Simulator</h1>
+    <form id="scheduling-form">
+        <label for="algorithm">Select Scheduling Algorithm:</label>
+        <select id="algorithm">
+            <option value="fifo">First Come First Serve (FIFO)</option>
+            <option value="round_robin">Round Robin</option>
+            <option value="sjf">Shortest Job First (SJF)</option>
+            <option value="uni_programming">Uni-programming</option>
+        </select>
+        <div id="quantum-input" style="display: none;">
+            <label for="quantum">Enter Quantum (for Round Robin):</label>
+            <input type="number" id="quantum" name="quantum" min="1" value="1">
+        </div>
+        <hr>
+        <div id="processes">
+            <div class="process">
+                <input type="number" name="pid" placeholder="Process ID">
+                <input type="number" name="arrival_time" placeholder="Arrival Time">
+                <input type="number" name="burst_time" placeholder="Burst Time">
+            </div>
+        </div>
+        <button type="button" id="add-process">Add Process</button>
+        <button type="submit" id="run-simulation">Run Simulation</button>
+    </form>
+    <div id="result"></div>
+    <div id="loading" style="display: none;">Processing... Please wait.</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#algorithm').change(function() {
+                var selectedAlgorithm = $(this).val();
+                if (selectedAlgorithm === 'round_robin') {
+                    $('#quantum-input').show();
+                } else {
+                    $('#quantum-input').hide();
+                }
+            });
+
+            $('#add-process').click(function() {
+                $('.process').first().clone().appendTo('#processes');
+            });
+
+            $('#scheduling-form').submit(function(e) {
+                e.preventDefault();
+                var processes = [];
+                $('.process').each(function() {
+                    var pid = $(this).find('[name="pid"]').val();
+                    var arrival_time = $(this).find('[name="arrival_time"]').val();
+                    var burst_time = $(this).find('[name="burst_time"]').val();
+                    processes.push({pid: pid, arrival_time: arrival_time, burst_time: burst_time});
+                });
+                var algorithm = $('#algorithm').val();
+                var quantum = $('#quantum').val();  // For Round Robin only
+
+                // Disable form elements during processing
+                $('#scheduling-form :input').prop('disabled', true);
+                $('#run-simulation').hide();
+                $('#loading').show();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/schedule',
+                    contentType: 'application/json',
+                    data: JSON.stringify({processes: processes, algorithm: algorithm, quantum: quantum}),
+                    success: function(response) {
+                        $('#result').text('Execution Order: ' + response.result.join(', '));
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    },
+                    complete: function() {
+                        // Re-enable form elements after processing completes
+                        $('#scheduling-form :input').prop('disabled', false);
+                        $('#run-simulation').show();
+                        $('#loading').hide();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
