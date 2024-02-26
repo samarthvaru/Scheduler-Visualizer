@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Process Scheduling Simulator</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Process Scheduling Simulator</h1>
@@ -30,8 +32,8 @@
         <button type="button" id="add-process">Add Process</button>
         <button type="submit" id="run-simulation">Run Simulation</button>
     </form>
-    <div id="result"></div>
-    <div id="loading" style="display: none;">Processing... Please wait.</div>
+    <!-- Container for the Chart -->
+    <canvas id="process-chart"></canvas>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -61,31 +63,59 @@
                 var algorithm = $('#algorithm').val();
                 var quantum = $('#quantum').val();  // For Round Robin only
 
-                // Disable form elements during processing
-                $('#scheduling-form :input').prop('disabled', true);
-                $('#run-simulation').hide();
-                $('#loading').show();
-
                 $.ajax({
                     type: 'POST',
                     url: '/schedule',
                     contentType: 'application/json',
                     data: JSON.stringify({processes: processes, algorithm: algorithm, quantum: quantum}),
                     success: function(response) {
-                        $('#result').text('Execution Order: ' + response.result.join(', '));
+                        renderChart(response.processes); // Call function to render chart with response data
                     },
                     error: function(xhr, status, error) {
                         console.error(error);
-                    },
-                    complete: function() {
-                        // Re-enable form elements after processing completes
-                        $('#scheduling-form :input').prop('disabled', false);
-                        $('#run-simulation').show();
-                        $('#loading').hide();
                     }
                 });
             });
         });
+
+        function renderChart(processes) {
+            var ctx = document.getElementById('process-chart').getContext('2d');
+            var labels = [];
+            var data = [];
+
+            // Extract data from processes
+            processes.forEach(function(process) {
+                labels.push('Process ' + process[0]);
+                data.push(process[2]);
+            });
+
+            // Clear existing chart
+            if (window.myChart instanceof Chart) {
+                window.myChart.destroy();
+            }
+
+            // Create new chart
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Burst Time',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

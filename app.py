@@ -20,7 +20,7 @@ def round_robin(processes, quantum, result_queue, completion_event):
             if process.arrival_time <= time_elapsed:
                 run_time = min(quantum, process.burst_time)
                 process.burst_time -= run_time
-                result_queue.put(process.pid)
+                result_queue.put((process.pid, process.arrival_time, run_time))  # Modified to include arrival time
                 print(f"Processing process {process.pid} for {run_time} units")
                 time.sleep(0.5)  # Simulate processing time
                 if process.burst_time <= 0:
@@ -32,7 +32,7 @@ def fifo(processes, result_queue, completion_event):
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
         time.sleep(process.burst_time)  # Simulate processing time
-        result_queue.put(process.pid)
+        result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
 def sjf(processes, result_queue, completion_event):
@@ -40,14 +40,14 @@ def sjf(processes, result_queue, completion_event):
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
         time.sleep(process.burst_time)  # Simulate processing time
-        result_queue.put(process.pid)
+        result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
 def uni_programming(processes, result_queue, completion_event):
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
         time.sleep(process.burst_time)  # Simulate processing time
-        result_queue.put(process.pid)
+        result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
 # Define route for homepage
@@ -83,7 +83,7 @@ def schedule():
     while not result_queue.empty():
         result.append(result_queue.get())
 
-    return jsonify({'result': result})
+    return jsonify({'processes': result})  # Modified to return processed data
 
 if __name__ == "__main__":
     app.run(debug=True)
