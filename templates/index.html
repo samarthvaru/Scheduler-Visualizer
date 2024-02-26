@@ -6,35 +6,101 @@
     <title>Process Scheduling Simulator</title>
     <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: calc(33.33% - 10px);
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            display: inline-block;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #processes {
+            margin-bottom: 20px;
+        }
+        .process {
+            margin-bottom: 10px;
+        }
+        #loading-message {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Process Scheduling Simulator</h1>
-    <form id="scheduling-form">
-        <label for="algorithm">Select Scheduling Algorithm:</label>
-        <select id="algorithm">
-            <option value="fifo">First Come First Serve (FIFO)</option>
-            <option value="round_robin">Round Robin</option>
-            <option value="sjf">Shortest Job First (SJF)</option>
-            <option value="uni_programming">Uni-programming</option>
-        </select>
-        <div id="quantum-input" style="display: none;">
-            <label for="quantum">Enter Quantum (for Round Robin):</label>
-            <input type="number" id="quantum" name="quantum" min="1" value="1">
-        </div>
-        <hr>
-        <div id="processes">
-            <div class="process">
-                <input type="number" name="pid" placeholder="Process ID">
-                <input type="number" name="arrival_time" placeholder="Arrival Time">
-                <input type="number" name="burst_time" placeholder="Burst Time">
+    <div class="container">
+        <h1>Process Scheduling Simulator</h1>
+        <form id="scheduling-form">
+            <label for="algorithm">Select Scheduling Algorithm:</label>
+            <select id="algorithm">
+                <option value="fifo">First Come First Serve (FIFO)</option>
+                <option value="round_robin">Round Robin</option>
+                <option value="sjf">Shortest Job First (SJF)</option>
+                <option value="uni_programming">Uni-programming</option>
+            </select>
+            <div id="quantum-input" style="display: none;">
+                <label for="quantum">Enter Quantum (for Round Robin):</label>
+                <input type="number" id="quantum" name="quantum" min="1" value="1">
             </div>
-        </div>
-        <button type="button" id="add-process">Add Process</button>
-        <button type="submit" id="run-simulation">Run Simulation</button>
-        <p id="loading-message" style="display: none;">Please wait while the processes complete...</p>
-    </form>
-    <!-- Container for the Chart -->
-    <canvas id="process-chart"></canvas>
+            <hr>
+            <div id="processes">
+                <div class="process">
+                    <input type="number" name="pid" placeholder="Process ID">
+                    <input type="number" name="arrival_time" placeholder="Arrival Time">
+                    <input type="number" name="burst_time" placeholder="Burst Time">
+                </div>
+            </div>
+            <button type="button" id="add-process">Add Process</button>
+            <button type="submit" id="run-simulation">Run Simulation</button>
+            <p id="loading-message" style="display: none;">Please wait while the processes complete...</p>
+        </form>
+        <div id="result"></div>
+        <!-- Container for the Chart -->
+        <canvas id="process-chart"></canvas>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -49,7 +115,9 @@
             });
 
             $('#add-process').click(function() {
-                $('.process').first().clone().appendTo('#processes');
+                var newProcess = $('.process').first().clone();
+                newProcess.find('input').val(''); // Clear input values
+                $('#processes').append(newProcess);
             });
 
             $('#scheduling-form').submit(function(e) {
@@ -75,7 +143,13 @@
                     contentType: 'application/json',
                     data: JSON.stringify({processes: processes, algorithm: algorithm, quantum: quantum}),
                     success: function(response) {
-                        renderChart(response.processes); // Call function to render chart with response data
+                        // Call function to render chart with response data
+                        renderChart(response.processes);
+                        var order = []
+                        response.processes.forEach(function(process) {
+                            order.push(process[0])
+                        });
+                        $('#result').text('Execution Order: ' + order.join('-> '))
                     },
                     error: function(xhr, status, error) {
                         console.error(error);
@@ -128,6 +202,7 @@
                 }
             });
         }
+
     </script>
 </body>
 </html>
