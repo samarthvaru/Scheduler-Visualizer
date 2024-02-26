@@ -22,7 +22,7 @@ def round_robin(processes, quantum, result_queue, completion_event):
                 process.burst_time -= run_time
                 result_queue.put((process.pid, process.arrival_time, run_time))  # Modified to include arrival time
                 print(f"Processing process {process.pid} for {run_time} units")
-                time.sleep(0.5)  # Simulate processing time
+                time.sleep(0.5/1000)  # Simulate processing time
                 if process.burst_time <= 0:
                     processes.remove(process)
             time_elapsed += 1
@@ -31,7 +31,7 @@ def round_robin(processes, quantum, result_queue, completion_event):
 def fifo(processes, result_queue, completion_event):
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
-        time.sleep(process.burst_time)  # Simulate processing time
+        time.sleep(process.burst_time/1000)  # Simulate processing time
         result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
@@ -39,14 +39,14 @@ def sjf(processes, result_queue, completion_event):
     processes.sort(key=lambda x: (x.arrival_time, x.burst_time))
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
-        time.sleep(process.burst_time)  # Simulate processing time
+        time.sleep(process.burst_time/1000)  # Simulate processing time
         result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
 def uni_programming(processes, result_queue, completion_event):
     for process in processes:
         print(f"Processing process {process.pid} for {process.burst_time} units")
-        time.sleep(process.burst_time)  # Simulate processing time
+        time.sleep(process.burst_time/1000)  # Simulate processing time
         result_queue.put((process.pid, process.arrival_time, process.burst_time))  # Modified to include arrival time
     completion_event.set()  # Signal completion
 
