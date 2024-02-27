@@ -12,6 +12,10 @@ This project is a web-based process scheduling simulator that allows users to si
 6. Click "Run Simulation" to start the simulation.
 7. Once the simulation completes, the execution order and the chart will be displayed.
 
+## Check the live project
+
+https://scheduler-visualizer.onrender.com
+
 ## File Structure
 
 - `index.html`: HTML file containing the user interface.
